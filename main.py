@@ -1,16 +1,64 @@
+import math
+import os
+import requests
 from waveshare_epd import epd2in9b_V3
 from PIL import Image, ImageDraw, ImageFont
 
-# Initialize Display
-display = epd2in9b_V3.EPD()
-display.init()
-display.Clear()
 
-# Fonts
-font_24 = ImageFont.truetype(os.path.join(os.getcwd(), 'Font.ttc'), 24)
+def main(init=False, clear=False):
+    # Get data from pi-hole
+    data = get_data("http://192.168.0.5/admin/api.php")
+    # Initialize Display
+    display = epd2in9b_V3.EPD()
+    if init:
+        display.init()
+    if clear:
+        display.Clear()
+    # Fonts
+    font_logo = ImageFont.truetype(os.path.join(os.getcwd(), 'Font.ttc'), 40)
+    font_large = ImageFont.truetype(os.path.join(os.getcwd(), 'Font.ttc'), 24)
+    font_small = ImageFont.truetype(os.path.join(os.getcwd(), 'Font.ttc'), 12)
+    # Draw
+    black_image = Image.new('1', (display.height, display.width), 255)
+    red_image = Image.new('1', (display.height, display.width), 255)
+    draw_black = ImageDraw.Draw(black_image)
+    draw_red = ImageDraw.Draw(red_image)
+    draw_black.text((0, 0), "Pi-hole", font=font_logo, fill=0)
+    draw_black.text(
+        (0, 40),
+        "Queries: " + str(data['queries']),
+        font=font_large,
+        fill=0,
+    )
+    draw_red.text(
+        (0, 65),
+        "Blocked: " + str(data["blocked"]) + " (" + str(data["percentage_blocked"]) + "%)",
+        font=font_large,
+        fill=0,
+    )
+    draw_black.text(
+        (0, 110),
+        "Clients: " + str(data["clients"]) + " | Blocked Domains: " + str(data["blocked_domains"]) + " |",
+        font=font_small,
+        fill=0,
+    )
+    if data["enabled"]:
+        draw_black.text((220, 110), "Online", font=font_small, fill=0)
+    else:
+        draw_red.text((220, 110), "Offline!", font=font_small, fill=0)
+    red_image.paste(Image.open('logo.bmp'), (200, 0))
+    display.display(display.getbuffer(black_image), display.getbuffer(red_image))
+    display.sleep()
 
-# Draw
-border_box = Image.new('1', (display.height, display.width), 255)
-draw_black = ImageDraw.Draw(border_box)
-drawblack.text((10, 0), '', font=font_24, fill=0)
-display.display(display.getbuffer(border_box), None)
+
+def get_data(url):
+    response = requests.get(url)
+    data = response.json()
+    return {
+        "queries": data["dns_queries_today"],
+        "blocked": data["ads_blocked_today"],
+        "percentage_blocked": math.floor(data["ads_percentage_today"] * 10) / 10,
+        "clients": data["unique_clients"],
+        "blocked_domains": data["domains_being_blocked"],
+        "enabled": data["status"] == "enabled",
+    }
