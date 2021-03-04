@@ -5,12 +5,12 @@ from waveshare_epd import epd2in9b_V3
 from PIL import Image, ImageDraw, ImageFont
 
 
-def main(init=False, clear=False):
+def main(sleep=True, clear=False):
     # Get data from pi-hole
     data = get_data("http://192.168.0.5/admin/api.php")
     # Initialize Display
     display = epd2in9b_V3.EPD()
-    if init:
+    if sleep:
         display.init()
     if clear:
         display.Clear()
@@ -46,9 +46,15 @@ def main(init=False, clear=False):
         draw_black.text((220, 110), "Online", font=font_small, fill=0)
     else:
         draw_red.text((220, 110), "Offline!", font=font_small, fill=0)
-    red_image.paste(Image.open('logo.bmp'), (200, 0))
+    # Add logo
+    logo = Image.open('logo.bmp')
+    logo.thumbnail((50, 50), resample=Image.HAMMING)
+    black_image.paste(logo, (display.height - 50, 0), mask=logo.split()[-1])
+    red_image.paste(logo.split()[1], (display.height - 50, 0), mask=logo.split()[-1])
+    # Draw on display
     display.display(display.getbuffer(black_image), display.getbuffer(red_image))
-    display.sleep()
+    if sleep:
+        display.sleep()
 
 
 def get_data(url):
@@ -62,3 +68,6 @@ def get_data(url):
         "blocked_domains": data["domains_being_blocked"],
         "enabled": data["status"] == "enabled",
     }
+
+if __name__ == "__main__":
+    main()
