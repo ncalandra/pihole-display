@@ -12,7 +12,7 @@ def main(sleep=True, clear=False):
     api = PiHoleAPI()
     data = api.get_stats()
     # Initialize Display
-    display = epaper.epaper("2in9b_V3").EPD()
+    display = epaper.epaper("epd2in9b_V3").EPD()
     if sleep:
         display.init()
     if clear:
