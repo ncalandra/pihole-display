@@ -35,13 +35,13 @@ def main(sleep=True, clear=False):
     )
     draw_red.text(
         (0, 65),
-        f"""Blocked: {data["queries"]["blocked"]} ({data["queries"]["percent_blocked"]}%)""",
+        f"""Blocked: {data["queries"]["blocked"]} ({data["queries"]["percent_blocked"]:.2f}%)""",
         font=font_large,
         fill=0,
     )
     draw_black.text(
         (0, 110),
-        f"""Clients: {data["clients"]["active"]} | Requests/Second: {data["queries"]["frequency"]}""",
+        f"""Clients: {data["clients"]["active"]} | Requests/Second: {data["queries"]["frequency"]:.2f}""",
         font=font_small,
         fill=0,
     )
