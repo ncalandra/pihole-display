@@ -26,8 +26,6 @@ class PiHoleAPI:
         return response.json()["session"]["sid"]
 
     def get_stats(self):
-        response = self._session.get(
-            f"{PIHOLE_API_URL}/stats/summary"
-        )
+        response = self._session.get(f"{PIHOLE_API_URL}/stats/summary")
         response.raise_for_status()
         return response.json()

@@ -3,7 +3,7 @@ import os
 
 from api import PiHoleAPI
 
-from waveshare_epd import epd2in9b_V3
+import epaper
 from PIL import Image, ImageDraw, ImageFont
 
 
@@ -12,7 +12,7 @@ def main(sleep=True, clear=False):
     api = PiHoleAPI()
     data = api.get_stats()
     # Initialize Display
-    display = epd2in9b_V3.EPD()
+    display = epaper.epaper("2in9b_V3").EPD()
     if sleep:
         display.init()
     if clear:
@@ -45,10 +45,8 @@ def main(sleep=True, clear=False):
     )
     draw_black.text(
         (0, 110),
-        "Clients: "
-        + str(data["clients"]["active"])
-        + " | Requests/Second: ",
-        + str(data["queries"]["frequency"]),
+        "Clients: " + str(data["clients"]["active"]) + " | Requests/Second: ",
+        +str(data["queries"]["frequency"]),
         font=font_small,
         fill=0,
     )
