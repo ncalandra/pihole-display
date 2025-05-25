@@ -38,7 +38,7 @@ def main(sleep=True, clear=False):
         "Blocked: "
         + str(data["queries"]["blocked"])
         + " ("
-        + str(data["queries"]["percentage_blocked"])
+        + str(data["queries"]["percent_blocked"])
         + "%)",
         font=font_large,
         fill=0,
